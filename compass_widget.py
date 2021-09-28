@@ -47,6 +47,7 @@ class Compass(tk.Frame):
 
         self.angle_begin = 0.0
         self.angle_max = 2 * pi  # 360 degrees
+        self.angle_min = -2 * pi
         self._angle = self.angle_begin  # rotation angle (rad)
         self.angle_resolution = pi / 360  # minimum angle increment (rad)
         self.angle_step = 6
@@ -130,8 +131,8 @@ class Compass(tk.Frame):
         self.angle = angle
 
     def angle_limit(self, angle):
-        if angle < -1 * self.angle_max:
-            angle = -1 * self.angle_max
+        if angle < self.angle_min:
+            angle = self.angle_min
         elif angle > self.angle_max:
             angle = self.angle_max
         return angle
