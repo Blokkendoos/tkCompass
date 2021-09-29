@@ -30,8 +30,8 @@ class DampedSpring():
         self.v = v0  # velocity (m/s)
         self.a = 0  # acceleration (m/s^2)
 
-        logging.info("Spring constant (k): {} dt: {}".
-                     format(self.k, self.dt))
+        logging.info("Spring constant (k): {} dt: {} m: {}".
+                     format(self.k, self.dt, self.m))
 
         self.K = 0  # kinetic energy (J)
         self.V = 0  # potential energy (J)
@@ -51,7 +51,7 @@ class DampedSpring():
         F = dp/dt = -kx
         p = mv
         """
-        self.a = -self.k / self.m * self.h - self.k1_drag / self.m * self.v
+        self.a = -(self.k / self.m) * self.h - (self.k1_drag / self.m) * self.v
         self.v += self.a * self.dt
         self.h += self.v * self.dt
         # self.dE = -self.k1_drag * pow(self.v, 2) * self.dt
