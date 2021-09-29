@@ -9,6 +9,7 @@ Description: Animated compass widget
 import numpy as np
 import tkinter as tk
 import logging
+import time
 from PIL import Image, ImageTk
 from math import pi, degrees, radians
 from pubsub import pub
@@ -43,46 +44,46 @@ class Compass(tk.Frame):
         self.root = root
         self.width = 300
         self.height = 300
+        self.compass_offset = (60, 20)
         self.is_running = False
 
-        self.angle_begin = 0.0
         self.angle_max = 2 * pi  # 360 degrees
         self.angle_min = -2 * pi
+        self.angle_resolution = pi / 180  # minimum angle increment (rad)
+        self.angle_step = 3
+        self.angle_begin = 0.0
         self._angle = self.angle_begin  # rotation angle (rad)
-        self.angle_resolution = pi / 360  # minimum angle increment (rad)
-        self.angle_step = 6
-        self.animation_angle = 0.0
+
         frame_rate = 24  # image/s
         self.animation_speed = int(1000 / frame_rate)  # frame interval (ms)
-
-        # https://stackoverflow.com/questions/15130670/pil-and-vectorbased-graphics
-        self.compass_offset = (60, 20)
+        self.animation_angle = self.angle_begin
+        self.animation_max_time = 1.75  # seconds
+        self.animation_start_time = 0.0
         self.animation_active = False
         self._animation_direction = 1
 
-        self.t = 0
-        self.dt = 0.01  # 10 ms
-
-        # constants
+        # spring parameters
         self.k = 100  # spring constant
         self.m = 1  # mass
         self.k1_drag = 0.5  # drag
         self.v0 = 1.0  # initial velocity
         self.h0 = 0.0  # initial height
+        self.dt = round(1 / frame_rate, 2)  # seconds
 
         self.canvas = tk.Canvas(root, width=self.width, height=self.height)
         self.canvas.configure(state=tk.DISABLED, bg='gray25')
         self.canvas.pack(fill=tk.BOTH, padx='2m', pady='2m')
 
+        # https://stackoverflow.com/questions/15130670/pil-and-vectorbased-graphics
         img_bg = Image.open('./images/compass.png')
         bg = ImageTk.PhotoImage(img_bg)
         self.img_disc = Image.open('./images/compass_disc.png')
         disc = ImageTk.PhotoImage(self.img_disc)
 
         self.canvas.create_image(self.compass_offset, image=bg, anchor=tk.NW)
-        self.canvas.image = bg  # for future reference
+        self.canvas.image = bg  # keep object reference
         self.canvas.create_image(self.compass_offset, image=disc, anchor=tk.NW)
-        self.canvas.disc = disc  # for future reference
+        self.canvas.disc = disc  # keep reference
 
         # pan and zoom stuff
         self.pan_x = 0
@@ -148,6 +149,7 @@ class Compass(tk.Frame):
     def animate(self):
         self.animation_active = True
         pub.sendMessage('animation_begin')
+        self.animation_start_time = time.time()
         self.animate_move()
 
     def animate_move(self):
@@ -163,7 +165,6 @@ class Compass(tk.Frame):
             self.root.after(self.animation_speed, self.animate_move)
         else:
             # moved the needle, now proceed with bounce
-            self.t = 0
             self.spring = DampedSpring(dt=self.dt,
                                        k=self.k,
                                        m=self.m,
@@ -173,20 +174,20 @@ class Compass(tk.Frame):
             self.root.after(self.animation_speed, self.animate_bounce)
 
     def animate_bounce(self):
-        swing = pi * self.spring.bounce()
-        if abs(swing) > 0.0001:
+        elapsed = time.time() - self.animation_start_time
+        swing = self.spring.bounce()
+        if elapsed < self.animation_max_time or abs(swing) > 0.001:
             if self.animation_direction > 0:
                 self.animation_angle = self.angle + swing
             else:
                 self.animation_angle = self.angle - swing
             self.display_compass()
-            self.root.after(10, self.animate_bounce)
-            self.t += self.dt
+            self.root.after(self.animation_speed, self.animate_bounce)
         else:
             self.animation_active = False
             self.animation_angle = self.angle   # animation under- or overshoot
             self.display_compass()
-            pub.sendMessage('animation_end', duration=self.t)
+            pub.sendMessage('animation_end', duration=elapsed)
 
     def mouse_pan_start(self, event):
         if not self.animation_active:
