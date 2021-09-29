@@ -16,4 +16,4 @@ This code shows a compass widget, using damped spring physics to simulate a liqu
 - Aircraft compass SVG image [<https://publicdomainvectors.org/en/free-clipart/Magnetic-compass-vector-image/21752.html>]
 
 ## Screenshot
-![Screenshot](Screenshot_2021-09-28_14-25-03%20Compass%20widget.png?raw=true "Screenshot")
+![Screenshot](Screenshot_2021-09-29_09-02-02%20Compass%20widget.png?raw=true "Screenshot")
