@@ -1,0 +1,15 @@
+# MacOS
+.DS_Store
+
+# PyCharm
+.idea
+
+# Python
+__pycache__
+*.pyc
+venv/
+
+# Doxygen / Sphinx
+doc/
+docs/
+
