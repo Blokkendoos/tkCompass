@@ -212,15 +212,15 @@ class Compass(tk.Frame):
     def mouse_pan(self, event):
         if not self.animation_active:
             dx = event.x - self.pan_x_start
-            dy = event.y - self.pan_y_start
+            dy = self.pan_y_start - event.y
             diff = 5
             if abs(dx) > diff:
                 self.pan_distance = (self.angle_step *
-                                     self.angle_resolution * dx) / 4
+                                     self.angle_resolution * dx) / 8
             elif abs(dy) > diff:
                 self.pan_distance = (self.angle_step *
-                                     self.angle_resolution * dy) / 4
-            self.animation_angle = self.pan_distance
+                                     self.angle_resolution * dy) / 8
+            self.animation_angle += self.pan_distance
             self.display_compass()
 
     def display_compass(self):
