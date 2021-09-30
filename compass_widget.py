@@ -157,12 +157,8 @@ class Compass(tk.Frame):
 
     def animate_move(self):
         """ move to the target position """
-        if self.animation_direction > 0 and self.animation_angle < self.angle:
-            self.animation_angle += self.angle_step * self.angle_resolution
-            self.display_compass()
-        elif (self.animation_direction < 0
-              and self.animation_angle > self.angle):
-            self.animation_angle -= self.angle_step * self.angle_resolution
+        if abs(self.angle - self.animation_angle) > self.angle_step * self.angle_resolution:
+            self.animation_angle += self.angle_step * self.angle_resolution * self.animation_direction
             self.display_compass()
         else:
             # moved the needle, now proceed with bounce
@@ -197,6 +193,7 @@ class Compass(tk.Frame):
             self.pan_x_start = event.x
             self.pan_y_start = event.y
             self.pan_distance = 0.0
+            self._animation_next = self.animate_move
 
     def mouse_pan_stop(self, event):
         if not self.animation_active:
@@ -227,10 +224,8 @@ class Compass(tk.Frame):
 
     def display_compass(self):
         self.canvas.delete(self.canvas.disc)
-
         # https://www.geeksforgeeks.org/how-to-rotate-an-image-using-python
         img_rot = self.img_disc.rotate(degrees(self.animation_angle))
         disc = ImageTk.PhotoImage(img_rot)
-
         self.canvas.create_image(self.compass_offset, image=disc, anchor=tk.NW)
         self.canvas.disc = disc  # keep a reference

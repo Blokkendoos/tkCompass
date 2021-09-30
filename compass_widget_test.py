@@ -128,7 +128,7 @@ class Gui:
                       command=self.spring_constants,
                       variable=self.v0)
         s5.pack(fill=tk.NONE, side=tk.LEFT)
-        s5.set(1.5)
+        s5.set(1.0)
 
         s6 = tk.Scale(parameters_frame2,
                       from_=-10.0, to=10.0, digits=4, resolution=0.05,
