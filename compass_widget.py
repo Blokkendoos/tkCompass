@@ -61,6 +61,7 @@ class Compass(tk.Frame):
         self.animation_start_time = 0.0
         self.animation_active = False
         self._animation_direction = 1
+        self._animation_next = self.animate_move
 
         # spring parameters
         self.k = 100  # spring constant
@@ -109,12 +110,14 @@ class Compass(tk.Frame):
 
         :param value: The angle in radians {-pi,pi} 0.0 pointing North
         """
+        self._angle = self.angle_limit(value)
+        if self._angle > self.animation_angle:
+            self._animation_direction = 1
+        else:
+            self._animation_direction = -1
+        # allow for repositioning during an active animation
+        self._animation_next = self.animate_move
         if not self.animation_active:
-            self._angle = self.angle_limit(value)
-            if self._angle > self.animation_angle:
-                self._animation_direction = 1
-            else:
-                self._animation_direction = -1
             self.animate()
 
     @property
@@ -150,19 +153,17 @@ class Compass(tk.Frame):
         self.animation_active = True
         pub.sendMessage('animation_begin')
         self.animation_start_time = time.time()
-        self.animate_move()
+        self._animation_next()
 
     def animate_move(self):
         """ move to the target position """
         if self.animation_direction > 0 and self.animation_angle < self.angle:
             self.animation_angle += self.angle_step * self.angle_resolution
             self.display_compass()
-            self.root.after(self.animation_speed, self.animate_move)
         elif (self.animation_direction < 0
               and self.animation_angle > self.angle):
             self.animation_angle -= self.angle_step * self.angle_resolution
             self.display_compass()
-            self.root.after(self.animation_speed, self.animate_move)
         else:
             # moved the needle, now proceed with bounce
             self.spring = DampedSpring(dt=self.dt,
@@ -171,7 +172,8 @@ class Compass(tk.Frame):
                                        k1_drag=self.k1_drag,
                                        h0=self.h0,
                                        v0=self.v0)
-            self.root.after(self.animation_speed, self.animate_bounce)
+            self._animation_next = self.animate_bounce
+        self.root.after(self.animation_speed, self._animation_next)
 
     def animate_bounce(self):
         elapsed = time.time() - self.animation_start_time
