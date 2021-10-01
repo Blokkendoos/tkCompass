@@ -157,8 +157,11 @@ class Compass(tk.Frame):
 
     def animate_move(self):
         """ move to the target position """
-        if abs(self.angle - self.animation_angle) > self.angle_step * self.angle_resolution:
-            self.animation_angle += self.angle_step * self.angle_resolution * self.animation_direction
+        if (abs(self.angle - self.animation_angle) >
+                self.angle_step * self.angle_resolution):
+            self.animation_angle += (self.angle_step *
+                                     self.angle_resolution *
+                                     self.animation_direction)
             self.display_compass()
         else:
             # moved the needle, now proceed with bounce
@@ -176,14 +179,14 @@ class Compass(tk.Frame):
         swing = self.spring.bounce()
         if elapsed < self.animation_max_time or abs(swing) > 0.001:
             if self.animation_direction > 0:
-                self.animation_angle = self.angle + swing
+                angle = self.angle + swing
             else:
-                self.animation_angle = self.angle - swing
-            self.display_compass()
-            self.root.after(self.animation_speed, self.animate_bounce)
+                angle = self.angle - swing
+            self.display_compass(angle)
+            self.root.after(self.animation_speed, self._animation_next)
         else:
             self.animation_active = False
-            self.animation_angle = self.angle   # animation under- or overshoot
+            self.animation_angle = self.angle  # animation under- or overshoot
             self.display_compass()
             pub.sendMessage('animation_end', duration=elapsed)
 
@@ -222,10 +225,12 @@ class Compass(tk.Frame):
             self.animation_angle += self.pan_distance
             self.display_compass()
 
-    def display_compass(self):
+    def display_compass(self, angle=None):
+        if angle is None:
+            angle = self.animation_angle
         self.canvas.delete(self.canvas.disc)
         # https://www.geeksforgeeks.org/how-to-rotate-an-image-using-python
-        img_rot = self.img_disc.rotate(degrees(self.animation_angle))
+        img_rot = self.img_disc.rotate(degrees(angle))
         disc = ImageTk.PhotoImage(img_rot)
         self.canvas.create_image(self.compass_offset, image=disc, anchor=tk.NW)
         self.canvas.disc = disc  # keep a reference
