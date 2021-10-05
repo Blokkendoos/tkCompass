@@ -39,12 +39,12 @@ class Compass(tk.Frame):
                  'NW': pi*7 / 4,
                  'NNW': pi*15 / 8}
 
-    def __init__(self, root):
-        super().__init__()
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, *args, **kwargs)
         self.root = root
         self.width = 300
         self.height = 300
-        self.compass_offset = (60, 20)
+        self.compass_offset = (60, 30)
         self.is_running = False
 
         self.angle_max = 2 * pi  # 360 degrees
@@ -71,7 +71,8 @@ class Compass(tk.Frame):
         self.h0 = 0.0  # initial height
         self.dt = round(1 / frame_rate, 2)  # seconds
 
-        self.canvas = tk.Canvas(root, width=self.width, height=self.height)
+        self.canvas = tk.Canvas(root, width=self.width, height=self.height,
+                                *args, **kwargs)
         self.canvas.configure(state=tk.DISABLED, bg='gray25')
         self.canvas.pack(fill=tk.BOTH, padx='2m', pady='2m')
 
@@ -150,13 +151,26 @@ class Compass(tk.Frame):
             logging.info("Invalid cardinal-point: {}".format(heading))
 
     def animate(self):
+        """
+        The compass animation can be in one of three states,
+        as follows:
+
+        (1) --> (2) --> (3) --+
+         ^                    |
+         |                    |
+         +--------------------+
+
+        1 = Finished; there is no animation active
+        2 = Move; the compass is moving to a new position
+        3 = Bounce; the compass has moved (to a new position) and bounces
+        """
         self.animation_active = True
         pub.sendMessage('animation_begin')
         self.animation_start_time = time.time()
         self._animation_next()
 
     def animate_move(self):
-        """ move to the target position """
+        """ Move to the target position """
         if (abs(self.angle - self.animation_angle) >
                 self.angle_step * self.angle_resolution):
             self.animation_angle += (self.angle_step *
