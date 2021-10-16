@@ -69,10 +69,10 @@ class Compass(tk.Frame):
         self.dt = round(1 / frame_rate, 2)  # seconds
 
         self.canvas = tk.Canvas(self)
-        self.canvas.configure(state=tk.DISABLED, bg='red')  #'gray25')
+        self.canvas.configure(state=tk.DISABLED, bg='gray25')
         self.canvas.pack()
 
-		# https://stackoverflow.com/questions/29132608/how-to-center-a-image-in-a-canvas-python-tkinter
+        # https://stackoverflow.com/questions/29132608/how-to-center-a-image-in-a-canvas-python-tkinter
         # https://stackoverflow.com/questions/3950687/how-to-find-out-the-current-widget-size-in-tkinter
         # https://www.tutorialkart.com/python/tkinter/tkinter-frame-width-height-not-working/
 
@@ -96,9 +96,9 @@ class Compass(tk.Frame):
         self.pan_y_start = 0
         self.pan_distance = 0.0
 
-        self.bind("<Button-3>", self.mouse_pan_start)
-        self.bind("<B3-Motion>", self.mouse_pan)
-        self.bind("<B3-ButtonRelease>", self.mouse_pan_stop)
+        self.canvas.bind("<Button-3>", self.mouse_pan_start)
+        self.canvas.bind("<B3-Motion>", self.mouse_pan)
+        self.canvas.bind("<B3-ButtonRelease>", self.mouse_pan_stop)
 
         pub.subscribe(self.angle_changed, 'angle_changed')
 
