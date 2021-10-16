@@ -96,6 +96,7 @@ class Compass(tk.Frame):
         self.canvas.bind("<Button-3>", self.mouse_pan_start)
         self.canvas.bind("<B3-Motion>", self.mouse_pan)
         self.canvas.bind("<B3-ButtonRelease>", self.mouse_pan_stop)
+        pub.subscribe(self.angle_changed, 'angle_changed')
 
         self.display_compass()
 
@@ -129,6 +130,9 @@ class Compass(tk.Frame):
         if not self.animation_active:
             self._animation_direction = value
 
+    def angle_changed(self, value):
+        self.angle = value
+
     def angle_degrees(self, value):
         """ Set the angle (degrees) """
         angle = radians(value)
@@ -150,13 +154,26 @@ class Compass(tk.Frame):
             logging.info("Invalid cardinal-point: {}".format(heading))
 
     def animate(self):
+        """
+        The compass animation can be in one of three states,
+        as follows:
+
+        (1) --> (2) --> (3) --+
+         ^                    |
+         |                    |
+         +--------------------+
+
+        1 = Finished; there is no animation active
+        2 = Move; the compass is moving to a new position
+        3 = Bounce; the compass has moved (to a new position) and bounces
+        """
         self.animation_active = True
         pub.sendMessage('animation_begin')
         self.animation_start_time = time.time()
         self._animation_next()
 
     def animate_move(self):
-        """ move to the target position """
+        """ Move to the target position """
         if (abs(self.angle - self.animation_angle) >
                 self.angle_step * self.angle_resolution):
             self.animation_angle += (self.angle_step *
