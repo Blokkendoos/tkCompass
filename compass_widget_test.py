@@ -190,7 +190,7 @@ class Gui:
         self.root.destroy()
 
 
-def run():
+def main():
     root = tk.Tk()
     root.title("Animated widget")
     gui = Gui(root)
@@ -201,4 +201,4 @@ if __name__ == "__main__":
     # logging.basicConfig(level=logging.DEBUG)
     # logging.basicConfig(level=logging.WARNING)
     logging.basicConfig(level=logging.INFO)
-    run()
+    main()
