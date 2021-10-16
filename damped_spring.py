@@ -41,6 +41,11 @@ class DampedSpring():
         self.calc_force()
 
     def calc_energy(self):
+        """
+        Equations:
+        E_kinetic = 1/2 mv^2
+        E_potential = 1/2 kx^2
+        """
         self.K = self.m * pow(self.v, 2) / 2
         self.V = self.k * pow(self.h, 2) / 2
         self.E = self.K + self.V
@@ -71,7 +76,8 @@ class DampedSpring():
         return self.h
 
 
-def run():
+def main():
+    """ Plot amplitude and energy (potential and kinetic) """
     t = 0
     dt = 0.01
     T = [0.]
@@ -117,4 +123,4 @@ def run():
 if __name__ == "__main__":
     # logging.basicConfig(level=logging.DEBUG)
     logging.basicConfig(level=logging.INFO)
-    run()
+    main()
