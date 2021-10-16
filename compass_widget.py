@@ -68,10 +68,6 @@ class Compass(tk.Frame):
         self.h0 = 0.0  # initial height
         self.dt = round(1 / frame_rate, 2)  # seconds
 
-        self.canvas = tk.Canvas(self)
-        self.canvas.configure(state=tk.DISABLED, bg='gray25')
-        self.canvas.pack()
-
         # https://stackoverflow.com/questions/29132608/how-to-center-a-image-in-a-canvas-python-tkinter
         # https://stackoverflow.com/questions/3950687/how-to-find-out-the-current-widget-size-in-tkinter
         # https://www.tutorialkart.com/python/tkinter/tkinter-frame-width-height-not-working/
@@ -85,6 +81,10 @@ class Compass(tk.Frame):
         self.img_disc = Image.open('./images/compass_disc.png')
         disc = ImageTk.PhotoImage(self.img_disc)
         self.disc = disc
+
+        self.canvas = tk.Canvas(self, width=img_bg.width, height=img_bg.height)
+        self.canvas.configure(state=tk.DISABLED, bg='gray25')
+        self.canvas.pack()
 
         self.canvas.create_image(self.center, image=bg)
         self.canvas.create_image(self.center, image=disc)
