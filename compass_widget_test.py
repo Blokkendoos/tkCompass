@@ -17,8 +17,8 @@ from compass_widget import Compass
 class Gui:
     def __init__(self, root):
         self.root = root
-        self.width = 400
-        self.height = 400
+        # self.width = 400
+        # self.height = 400
         self.is_running = False
 
         self.angle_max = pi  # 180 degrees
@@ -41,9 +41,9 @@ class Gui:
         self.cardinal_point.set('N')  # default North
 
         self.compass = Compass(self.root)
-        self.compass.pack(side=tk.TOP)
+        self.compass.pack()
 
-        settings_frame = tk.Frame(root, width=self.width, padx='2m')
+        settings_frame = tk.Frame(root, padx='2m')
         settings_frame.pack(fill=tk.BOTH, side=tk.TOP)
 
         label0 = tk.Label(settings_frame,
@@ -75,14 +75,13 @@ class Gui:
         b2.pack(fill=tk.NONE, side=tk.RIGHT)
 
         # constants control
-        parameters_frame = tk.Frame(root, width=self.width,
-                                    padx='2m', pady='2m')
+        parameters_frame = tk.Frame(root, padx='2m', pady='2m')
         parameters_frame.pack(fill=tk.NONE, side=tk.BOTTOM)
 
         # sliders
         s1 = tk.Scale(parameters_frame,
                       from_=10.0, to=500.0,
-                      label='k', length='35m',
+                      label='k',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.k)
@@ -91,7 +90,7 @@ class Gui:
 
         s2 = tk.Scale(parameters_frame,
                       from_=1.0, to=10.0, digits=4, resolution=0.0125,
-                      label='mass (kg)', length='35m',
+                      label='mass (kg)',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.m)
@@ -100,21 +99,21 @@ class Gui:
 
         s3 = tk.Scale(parameters_frame,
                       from_=0.0, to=10.0, digits=4, resolution=0.0125,
-                      label='t_max (s)', length='35m',
+                      label='t_max (s)',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.max_time)
         s3.pack(fill=tk.NONE, side=tk.LEFT)
         s3.set(1.75)
 
-        parameters_frame2 = tk.Frame(root, width=self.width,
+        parameters_frame2 = tk.Frame(root,
                                      padx='2m', pady='2m')
         parameters_frame2.pack(fill=tk.NONE, side=tk.BOTTOM)
 
         # https://stackoverflow.com/questions/25361926/tkinter-scale-and-floats-when-resolution-1
         s4 = tk.Scale(parameters_frame2,
                       from_=0.0, to=10.0, digits=4, resolution=0.0125,
-                      label='k1_drag', length='35m',
+                      label='k1_drag',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.k1_drag)
@@ -123,7 +122,7 @@ class Gui:
 
         s5 = tk.Scale(parameters_frame2,
                       from_=0.0, to=10.0, digits=4, resolution=0.0125,
-                      label='v0', length='35m',
+                      label='v0',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.v0)
@@ -132,7 +131,7 @@ class Gui:
 
         s6 = tk.Scale(parameters_frame2,
                       from_=-10.0, to=10.0, digits=4, resolution=0.05,
-                      label='h0 (cm)', length='35m',
+                      label='h0 (cm)',
                       showvalue=tk.TRUE, orient=tk.HORIZONTAL,
                       command=self.spring_constants,
                       variable=self.h0)

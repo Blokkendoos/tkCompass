@@ -39,12 +39,9 @@ class Compass(tk.Frame):
                  'NW': pi*7 / 4,
                  'NNW': pi*15 / 8}
 
-    def __init__(self, root):
-        super().__init__()
-        self.root = root
-        self.width = 300
-        self.height = 300
-        self.compass_offset = (60, 20)
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.master = master
         self.is_running = False
 
         self.angle_max = 2 * pi  # 360 degrees
@@ -71,20 +68,26 @@ class Compass(tk.Frame):
         self.h0 = 0.0  # initial height
         self.dt = round(1 / frame_rate, 2)  # seconds
 
-        self.canvas = tk.Canvas(root, width=self.width, height=self.height)
-        self.canvas.configure(state=tk.DISABLED, bg='gray25')
-        self.canvas.pack(fill=tk.BOTH, padx='2m', pady='2m')
+        self.canvas = tk.Canvas(self)
+        self.canvas.configure(state=tk.DISABLED, bg='red')  #'gray25')
+        self.canvas.pack()
+
+		# https://stackoverflow.com/questions/29132608/how-to-center-a-image-in-a-canvas-python-tkinter
+        # https://stackoverflow.com/questions/3950687/how-to-find-out-the-current-widget-size-in-tkinter
+        # https://www.tutorialkart.com/python/tkinter/tkinter-frame-width-height-not-working/
 
         # https://stackoverflow.com/questions/15130670/pil-and-vectorbased-graphics
         img_bg = Image.open('./images/compass.png')
+        self.center = (img_bg.width // 2, img_bg.height // 2)
         bg = ImageTk.PhotoImage(img_bg)
+        self.bg = bg  # keep reference
+
         self.img_disc = Image.open('./images/compass_disc.png')
         disc = ImageTk.PhotoImage(self.img_disc)
+        self.disc = disc
 
-        self.canvas.create_image(self.compass_offset, image=bg, anchor=tk.NW)
-        self.canvas.image = bg  # keep object reference
-        self.canvas.create_image(self.compass_offset, image=disc, anchor=tk.NW)
-        self.canvas.disc = disc  # keep reference
+        self.canvas.create_image(self.center, image=bg)
+        self.canvas.create_image(self.center, image=disc)
 
         # pan and zoom stuff
         self.pan_x = 0
@@ -93,9 +96,10 @@ class Compass(tk.Frame):
         self.pan_y_start = 0
         self.pan_distance = 0.0
 
-        self.canvas.bind("<Button-3>", self.mouse_pan_start)
-        self.canvas.bind("<B3-Motion>", self.mouse_pan)
-        self.canvas.bind("<B3-ButtonRelease>", self.mouse_pan_stop)
+        self.bind("<Button-3>", self.mouse_pan_start)
+        self.bind("<B3-Motion>", self.mouse_pan)
+        self.bind("<B3-ButtonRelease>", self.mouse_pan_stop)
+
         pub.subscribe(self.angle_changed, 'angle_changed')
 
         self.display_compass()
@@ -189,7 +193,7 @@ class Compass(tk.Frame):
                                        h0=self.h0,
                                        v0=self.v0)
             self._animation_next = self.animate_bounce
-        self.root.after(self.animation_speed, self._animation_next)
+        self.master.after(self.animation_speed, self._animation_next)
 
     def animate_bounce(self):
         elapsed = time.time() - self.animation_start_time
@@ -200,7 +204,7 @@ class Compass(tk.Frame):
             else:
                 angle = self.angle - swing
             self.display_compass(angle)
-            self.root.after(self.animation_speed, self._animation_next)
+            self.master.after(self.animation_speed, self._animation_next)
         else:
             self.animation_active = False
             self.animation_angle = self.angle  # animation under- or overshoot
@@ -245,9 +249,9 @@ class Compass(tk.Frame):
     def display_compass(self, angle=None):
         if angle is None:
             angle = self.animation_angle
-        self.canvas.delete(self.canvas.disc)
+        self.canvas.delete(self.disc)
         # https://www.geeksforgeeks.org/how-to-rotate-an-image-using-python
         img_rot = self.img_disc.rotate(degrees(angle))
         disc = ImageTk.PhotoImage(img_rot)
-        self.canvas.create_image(self.compass_offset, image=disc, anchor=tk.NW)
-        self.canvas.disc = disc  # keep a reference
+        self.canvas.create_image(self.center, image=disc)
+        self.disc = disc  # keep a reference
